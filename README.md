@@ -6,7 +6,7 @@ Matching files tool aims to help in finding files that not have a corresponding 
 ## Installation
 
 ```bash
-git clone 
+git clone https://github.com/mahmoudalrahbi/matching_files_tool.git
 ```
 
 ## Getting Started
