@@ -3,6 +3,12 @@ Usually, when we want to train a deep learning model, we need a lot of data and 
 
 Matching files tool aims to help in finding files that not have a corresponding file and delete it or copy the files which have a corresponding file.
 
+## Installation
+
+```bash
+git clone 
+```
+
 ## Getting Started
 
 For example, if you want to know which images in the below picture does not have a corresponding XML file.
