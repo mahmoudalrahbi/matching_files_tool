@@ -1,5 +1,5 @@
 # Matching files tool
-Usually, when we want to train a deep learning model, we need a lot of data and a lot of files. For example, if yx`ou want to train the YOLO model, you need image files and XML files that describe the labeled objects in every picture. So it necessary to make sure that every XML file in your dataset has a corresponding image. Matching files tool come to help you to manage these files.
+Usually, when we want to train a deep learning model, we need a lot of data and a lot of files. For example, if you want to train the YOLO model, you need image files and XML files that describe the labeled objects in every picture. So it necessary to make sure that every XML file in your dataset has a corresponding image. Matching files tool come to help you to manage these files.
 
 Matching files tool aims to help in finding files that not have a corresponding file and delete it or copy the files which have a corresponding file.
 
