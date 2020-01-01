@@ -1,84 +1,138 @@
+#|##########################################################|##
+# Matching files tool aims to help in finding files that    |##
+# not have a corresponding file and delete it or copy       |##
+# the files which have a corresponding file.                |##
+#                                                           |##
+# written by @mahmoudalrahbi                                |##
+#|##########################################################|##
+
+
 import argparse
 import glob
 import os
 import shutil 
+from tqdm import tqdm
 
 
 #################################################################################
+
+def check_corresponding_files(dir1, dir2, ext1, ext2):
 #|##########################################################|##
 #| check_corresponding_files()                              |##
 #| check if each files in both direcories have corresponding|##
 #| files in the other direcory and show the files with      |##
 #| no corresponding file                                    |##
 #|##########################################################|##
-def check_corresponding_files(dir1, dir2, ext1, ext2):
     c=0 #count files that does not have corresponding files
-    for filename in glob.glob(os.path.join(dir1, "*."+ext1)):
+    no_matching_files_dir1 =[] # no matching file in fiest directory
+    no_matching_files_dir2 =[] # no matching file in second directory 
+ 
+    print("\n")
+    pbar = tqdm(glob.glob(os.path.join(dir1, "*."+ext1)))# prepare progress bar
+    for filename in pbar:
         f,_ = filename.split('.')
         lastName=os.path.basename(os.path.normpath(f))
         corespondingFiles = os.path.join(dir2, lastName + '.'+ext2)
 
         if not os.path.exists(corespondingFiles):
-            print(corespondingFiles + " not exist")
+            #print(corespondingFiles + " not exist")
+            no_matching_files_dir1.append(lastName + '.'+ext1)
             c+=1
+        pbar.set_description(lastName+ '.'+ext1)#upade description for progress bar
 
-    for filename in glob.glob(os.path.join(dir2, "*."+ext2)):
+    print("\n")
+    pbar = tqdm(glob.glob(os.path.join(dir2, "*."+ext2)))# prepare progress bar
+    for filename in pbar:
         f,_ = filename.split('.')
         lastName=os.path.basename(os.path.normpath(f))
         corespondingFiles = os.path.join(dir1, lastName + '.'+ext1)
 
         if not os.path.exists(corespondingFiles):
-            print(corespondingFiles + " not exist")
+            #print(corespondingFiles + " not exist")
+            no_matching_files_dir2.append(lastName + '.'+ext2)
             c+=1
+        pbar.set_description(lastName+ '.'+ext2)#upade description for progress bar
 
+    num = len(no_matching_files_dir1)
+    if num > 0:   
+        print("%d files without cressponding file in %s"%(num ,dir1))
+        for file in no_matching_files_dir1:
+            print(file)
+        print("--------------------------------------------------------------")
+
+
+    num = len(no_matching_files_dir2)
+    if num > 0:
+        print("%d files without cressponding file in %s"%(num,dir2))
+        for file in no_matching_files_dir2:
+            print(file)
+        print("--------------------------------------------------------------")
     print("%d files does not have corresponding files"%c)
     print("--------------------------------------------------------------")
+    
+
+
     #end of check_corresponding_files()
 #################################################################################
 
 #################################################################################
+
+def delete_files(dir1, dir2, ext1, ext2):
 #|##########################################################|##
 #| delete_files()                                           |##
 #| delete files in dir1 which does not have corresponding   |##
 #| files  in dir2                                           |##
 #|                                                          |##
 #|##########################################################|##
-def delete_files(dir1, dir2, ext1, ext2):
     c=0 #count files that does not have corresponding files
-    for filename in glob.glob(os.path.join(dir1, "*."+ext1)):
+    deleted_files=[]
+    pbar = tqdm(glob.glob(os.path.join(dir1, "*."+ext1))) # prepare progress bar
+    for filename in pbar: #loop through files
         f,_ = filename.split('.')
         lastName=os.path.basename(os.path.normpath(f))
         corespondingFiles = os.path.join(dir2, lastName + '.'+ext2)
 
         if not os.path.exists(corespondingFiles):
-            print(corespondingFiles + " not exist")
+            #print(corespondingFiles + " not exist")
             c+=1
             os.remove(filename)
-            print(filename + " is deleted")
-    print("%d files are deleted from %s"%(c ,dir1))
-    print("--------------------------------------------------------------")
+            #print(filename + " is deleted")
+            deleted_files.append(lastName+ '.'+ext1)
+        pbar.set_description(lastName+ '.'+ext1)#upade description for progress bar
+
+    num = len(deleted_files)
+    if num > 0:
+        print("%d files are deleted from directory %s"%(num,dir1))
+        for file in deleted_files:
+            print(file)
+        print("--------------------------------------------------------------")
+
     #end of delete_files()
 #################################################################################
 
 #################################################################################
+
+def copy_files(dir1, dir2, ext1, ext2,distnation):
 #|##########################################################|##
 #| copy_files()                                             |##
 #| copy files in dir1 which have  corresponding             |##
 #| files  in dir2 (copy it into distnation directory)       |##
 #|                                                          |##
 #|##########################################################|##
-def copy_files(dir1, dir2, ext1, ext2,distnation):
     c=0
-    for filename in glob.glob(os.path.join(dir1, "*."+ext1)):
-            f,_ = filename.split('.')
-            lastName=os.path.basename(os.path.normpath(f))
-            corespondingFiles = os.path.join(dir2, lastName + '.'+ext2)
+    pbar = tqdm(glob.glob(os.path.join(dir1, "*."+ext1))) # prepare progress bar
+    for filename in pbar:
+        f,_ = filename.split('.')
+        lastName=os.path.basename(os.path.normpath(f))
+        corespondingFiles = os.path.join(dir2, lastName + '.'+ext2)
 
-            if os.path.exists(corespondingFiles):
-                shutil.copy(filename,distnation)
-                c+=1
-                print("%d -%s copy into %s"%(c,filename,distnation) )
-                
+        if os.path.exists(corespondingFiles):
+            shutil.copy(filename,distnation)
+            c+=1
+            #print("%d -%s copy into %s"%(c,filename,distnation) )
+        
+        pbar.set_description(lastName+ '.'+ext1)#upade description for progress bar
+
     print("%d files are copied into %s from %s"%(c ,distnation,dir1))
     print("--------------------------------------------------------------")
 
@@ -162,7 +216,7 @@ elif deleteDir =="dir2":
     ans = input("Are you sore do you want to delete some files from %s (Y/N)? "%dir2)
     if ans =="Y" or ans== "y": 
         delete_files(dir2, dir1, ext2, ext1)
-        #python main.py -dir1 d1 -ext1 xml -dir2 d2 -ext2 jpg -delete_dir2
+        #python main.py -dir1 d1 -ext1 xml -dir2 d2 -ext2 jpg  -delete_dir2
 elif deleteDir == "both":
     ans = input("Are you sore do you want to delete some files from %s and %s(Y/N)? "%(dir1 ,dir2))
     if ans =="Y" or ans== "y": 
